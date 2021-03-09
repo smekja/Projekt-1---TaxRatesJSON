@@ -101,7 +101,7 @@ public class Util {
     }
 
 
-    public Comparator<State> extractTop3() {
+    public Comparator<State> sortStandardRate() {
         return Comparator.<State, Double> comparing(state -> state.getStandardRate(), reverseOrder())
                 .thenComparing(state -> state.getReducedRate(), reverseOrder())
                 .thenComparing(state -> state.getReducedRateAlt(), reverseOrder())
@@ -109,12 +109,9 @@ public class Util {
                 .thenComparing(state -> state.getParkingRate(), reverseOrder());
     }
 
-    public List<?> findHighestTaxes() {
+    public List<?> findHighestTaxesTop3() {
         Stream<State> streamOfStates = streamStateSupplier();
-        /*  Comparator<State> standardRateComparator = Comparator.comparing(State::getStandardRate, reverseOrder());
-        Comparator<State> reducedRateComparator = Comparator.comparing(State::getReducedRate, reverseOrder());
-        Comparator<State> last = standardRateComparator.thenComparing(reducedRateComparator);*/
-        List<?> result = streamOfStates.sorted(extractTop3())
+        List<?> result = streamOfStates.sorted(sortStandardRate())
                 .limit(3)
                 .map(state -> state.getName())
                 .collect(Collectors.toList());
@@ -124,7 +121,7 @@ public class Util {
         System.out.println("-----------------------------------");
         System.out.println("Top 3 EU highest taxes countries: ");
         System.out.println("-----------------------------------");
-        List<?> result = findHighestTaxes();
+        List<?> result = findHighestTaxesTop3();
         State stateFound;
         for(Object item : result) {
             Stream<State> streamOfStates = streamStateSupplier();
@@ -135,9 +132,9 @@ public class Util {
             System.out.println("-----------------------------------");
         }
     }
-    public List<?> findLowestTaxes() {
+    public List<?> findLowestTaxesLast3() {
         Stream<State> streamOfStates = streamStateSupplier();
-        List<?> result = streamOfStates.sorted(extractTop3().reversed())
+        List<?> result = streamOfStates.sorted(sortStandardRate().reversed())
                 .limit(3)
                 .map(state -> state.getName())
                 .collect(Collectors.toList());
@@ -147,7 +144,7 @@ public class Util {
     public void printLowestTaxes() {
         System.out.println("Top 3 EU lowest taxes countries: ");
         System.out.println("-----------------------------------");
-        List<?> result = findLowestTaxes();
+        List<?> result = findLowestTaxesLast3();
         State stateFound;
         for(Object item : result) {
             Stream<State> streamOfStates = streamStateSupplier();
