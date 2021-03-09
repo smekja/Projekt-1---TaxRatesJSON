@@ -97,7 +97,7 @@ public class Util {
         HashSet<Object> alreadySeenStates = new HashSet<>();
         stateList.removeIf(value -> !alreadySeenStates.add(value.getName()));
         listOfNonDuplicateKeys = streamStateSupplier().map((value) -> value.getShortcut())
-        .collect(Collectors.toList());
+                .collect(Collectors.toList());
     }
 
 
