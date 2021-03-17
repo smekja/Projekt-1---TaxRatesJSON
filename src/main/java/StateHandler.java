@@ -72,18 +72,22 @@ public class StateHandler {
         }
     }
 
-    public void tryToFindAbbreviation(String abbreviation) {
-        boolean isFound = false;
+    private State findState(String stateAbbreviation) {
         for (State state : stateList) {
-            if (state.getAbbreviation().equals(abbreviation)) {
-                isFound = true;
+            if (state.getAbbreviation().equals(stateAbbreviation)) {
+                return state;
+            }
+        }
+        return null;
+    }
+
+    private void tryToFindAbbreviation(String abbreviation) {
+        State state = findState(abbreviation);
+        if ( state != null) {
                 state.printAllData();
                 System.out.println("-----------------------------------------");
                 System.out.println("Press 'q' to quit or you can search again: ");
-                break;
-            }
-        }
-        if (!isFound) {
+        } else {
             System.out.println("Couldnt find " + abbreviation + " shortcut.");
             System.out.println("Try again: ");
         }
