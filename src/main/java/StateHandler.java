@@ -12,10 +12,9 @@ import java.util.stream.Stream;
 import static java.util.Comparator.reverseOrder;
 
 
-public class Util {
-    public ArrayList<State> stateList = new ArrayList<>();
-    public Set<String> keys;
-    public List<String> listOfNonDuplicateKeys;
+public class StateHandler {
+    private Set<State> stateList = new HashSet<>();
+    private Set<String> keys = new HashSet<>();
 
     private Stream<State> streamStateSupplier() {
         return stateList.stream();
@@ -35,26 +34,23 @@ public class Util {
         return response.body();
     }
 
-    // have to add function to remove duplicate shortcuts
     public void saveData(String response) {
         JSONObject jo = new JSONObject(response);
         JSONObject rates = new JSONObject(jo.optString("rates"));
 
-        // Getting a set of state´s shortcuts
+        // Getting a set of state´s abbreviations
         keys = rates.keySet();
 
         for (String key : keys) {
             JSONObject singleStateJSON = new JSONObject(rates.optString(key));
             State<?> state = new State();
             setStateInfo(singleStateJSON, state, key);
-
             stateList.add(state);
         }
-        removeDuplicateStates();
     }
 
     private void setStateInfo(JSONObject singleStateJSON, State state, String key) {
-        state.setShortcut(key);
+        state.setAbbreviation(key);
         state.setName(singleStateJSON.optString("country"));
         state.setStandardRate(singleStateJSON.optString("standard_rate"));
         state.setReducedRate(singleStateJSON.opt("reduced_rate"));
@@ -62,24 +58,24 @@ public class Util {
         state.setSuperReducedRate(singleStateJSON.opt("super_reduced_rate"));
         state.setParkingRate(singleStateJSON.opt("parking_rate"));
     }
+
     public void readFromKeyboard() throws IOException {
-        System.out.println("Available shortcuts: " + listOfNonDuplicateKeys);
-        System.out.print("Enter the shortcut of a country to show it´s data. ");
+        System.out.println("Available state abbreviations: " + keys);
+        System.out.print("Enter the abbreviation of a country to show it´s data. ");
         System.out.println("You can press 'q' to quit.");
 
         Scanner scanner = new Scanner(System.in);
-        String shortcut = scanner.next().toUpperCase();
-        while(!shortcut.equals("Q")) {
-            tryToFindShortcut(shortcut);
-            shortcut = scanner.next().toUpperCase();
-
+        String abbreviation = scanner.next().toUpperCase();
+        while (!abbreviation.equals("Q")) {
+            tryToFindAbbreviation(abbreviation);
+            abbreviation = scanner.next().toUpperCase();
         }
     }
 
-    public void tryToFindShortcut(String shortcut) {
+    public void tryToFindAbbreviation(String abbreviation) {
         boolean isFound = false;
         for (State state : stateList) {
-            if(state.getShortcut().equals(shortcut)) {
+            if (state.getAbbreviation().equals(abbreviation)) {
                 isFound = true;
                 state.printAllData();
                 System.out.println("-----------------------------------------");
@@ -88,18 +84,10 @@ public class Util {
             }
         }
         if (!isFound) {
-            System.out.println("Couldnt find " + shortcut + " shortcut.");
+            System.out.println("Couldnt find " + abbreviation + " shortcut.");
             System.out.println("Try again: ");
         }
     }
-
-    private void removeDuplicateStates() {
-        HashSet<Object> alreadySeenStates = new HashSet<>();
-        stateList.removeIf(value -> !alreadySeenStates.add(value.getName()));
-        listOfNonDuplicateKeys = streamStateSupplier().map((value) -> value.getShortcut())
-                .collect(Collectors.toList());
-    }
-
 
     public Comparator<State> sortStandardRate() {
         return Comparator.<State, Double> comparing(state -> state.getStandardRate(), reverseOrder())
@@ -109,34 +97,29 @@ public class Util {
                 .thenComparing(state -> state.getParkingRate(), reverseOrder());
     }
 
-    public List<?> findHighestTaxesTop3() {
+    public List<State> findHighestTaxesTop3() {
         Stream<State> streamOfStates = streamStateSupplier();
-        List<?> result = streamOfStates.sorted(sortStandardRate())
+        List<State> result = streamOfStates.sorted(sortStandardRate())
                 .limit(3)
-                .map(state -> state.getName())
                 .collect(Collectors.toList());
         return result;
     }
+
     public void printHighestTaxes() {
         System.out.println("-----------------------------------");
         System.out.println("Top 3 EU highest taxes countries: ");
         System.out.println("-----------------------------------");
-        List<?> result = findHighestTaxesTop3();
-        State stateFound;
-        for(Object item : result) {
-            Stream<State> streamOfStates = streamStateSupplier();
-            stateFound = streamOfStates.filter(
-                    (value) -> value.getName().equals(item))
-                    .findAny().get();
-            stateFound.printAllData();
+        List<State> result = findHighestTaxesTop3();
+       for (State state : result) {
+            state.printAllData();
             System.out.println("-----------------------------------");
         }
     }
-    public List<?> findLowestTaxesLast3() {
+
+    public List<State> findLowestTaxesLast3() {
         Stream<State> streamOfStates = streamStateSupplier();
-        List<?> result = streamOfStates.sorted(sortStandardRate().reversed())
+        List<State> result = streamOfStates.sorted(sortStandardRate().reversed())
                 .limit(3)
-                .map(state -> state.getName())
                 .collect(Collectors.toList());
         return result;
     }
@@ -144,14 +127,9 @@ public class Util {
     public void printLowestTaxes() {
         System.out.println("Top 3 EU lowest taxes countries: ");
         System.out.println("-----------------------------------");
-        List<?> result = findLowestTaxesLast3();
-        State stateFound;
-        for(Object item : result) {
-            Stream<State> streamOfStates = streamStateSupplier();
-            stateFound = streamOfStates.filter(
-                    (value) -> value.getName().equals(item))
-                    .findAny().get();
-            stateFound.printAllData();
+        List<State> result = findLowestTaxesLast3();
+        for (State state : result) {
+            state.printAllData();
             System.out.println("---------------------------");
         }
     }

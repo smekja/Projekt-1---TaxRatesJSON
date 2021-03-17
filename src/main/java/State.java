@@ -1,5 +1,5 @@
 public class State <T> {
-    private String shortcut;
+    private String abbreviation;
     private String name;
     private T standardRate;
     private T reducedRate;
@@ -7,12 +7,27 @@ public class State <T> {
     private T superReducedRate;
     private T parkingRate;
 
-    public String getShortcut() {
-        return shortcut;
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) return false;
+        if (!(obj instanceof State)) return false;
+        if (obj == this) return true;
+        return this.getName().equals(((State<?>) obj).getName());
     }
 
-    public void setShortcut(String shortcut) {
-        this.shortcut = shortcut;
+    @Override
+    public int hashCode() {
+        int result = 1;
+        result = 25 * result + name.hashCode();
+        return result;
+    }
+
+    public String getAbbreviation() {
+        return abbreviation;
+    }
+
+    public void setAbbreviation(String abbreviation) {
+        this.abbreviation = abbreviation;
     }
 
     public String getName() {
@@ -64,8 +79,9 @@ public class State <T> {
     public void setParkingRate(T parkingRate) {
         this.parkingRate = parkingRate;
     }
+
     public void printAllData() {
-        System.out.println("Shortcut: " + shortcut);
+        System.out.println("Abbreviation: " + abbreviation);
         System.out.println("Name: " + name);
         System.out.println("Standard rate: " + standardRate);
         System.out.println("Reduced rate: " + reducedRate);
@@ -73,6 +89,7 @@ public class State <T> {
         System.out.println("Super reduced rate: " + superReducedRate);
         System.out.println("Parking rate: " + parkingRate);
     }
+
     private <T> Double changeFalseToDouble(T object) {
         if (object.toString().toLowerCase().equals("false")) return Double.valueOf(0);
         return Double.parseDouble(object.toString());
